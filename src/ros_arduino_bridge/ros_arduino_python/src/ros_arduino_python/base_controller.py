@@ -100,8 +100,7 @@ class BaseController:
         
         
         #modify by william
-        if self.debugPID:
-            self.lEncoderPub = rospy.Publisher('Lencoder', Int32)
+        self.lEncoderPub = rospy.Publisher('Lencoder', Int32)
         self.rEncoderPub = rospy.Publisher('Rencoder', Int32)
         self.lPidoutPub = rospy.Publisher('Lpidout', Int32)
         self.rPidoutPub = rospy.Publisher('Rpidout', Int32)
