@@ -38,19 +38,15 @@ class BaseController:
         self.rate = float(rospy.get_param("~base_controller_rate", 10))
         self.timeout = rospy.get_param("~base_controller_timeout", 1.0)
         self.stopped = False
-        self.debugPID=True
-        self.four_wd=True
+        self.debugPID = False
+        self.four_wd = False
                  
         pid_params = dict()
         pid_params['wheel_diameter'] = rospy.get_param("~wheel_diameter", "") 
         pid_params['wheel_track'] = rospy.get_param("~wheel_track", "")
         pid_params['encoder_resolution'] = rospy.get_param("~encoder_resolution", "") 
         pid_params['gear_reduction'] = rospy.get_param("~gear_reduction", 1.0)
-        #pid_params['Kp'] = rospy.get_param("~Kp", 20)
-        #pid_params['Kd'] = rospy.get_param("~Kd", 12)
-        #pid_params['Ki'] = rospy.get_param("~Ki", 0)
-        #pid_params['Ko'] = rospy.get_param("~Ko", 50)
-        #modify by william
+
         pid_params['left_Kp'] = rospy.get_param("~left_Kp", 20)
         pid_params['left_Kd'] = rospy.get_param("~left_Kd", 12)
         pid_params['left_Ki'] = rospy.get_param("~left_Ki", 0)
@@ -98,15 +94,13 @@ class BaseController:
         # Clear any old odometry info
         self.arduino.reset_encoders()
         
-        
-        #modify by william
         if self.debugPID:
-        	self.lEncoderPub = rospy.Publisher('Lencoder', Int32)
-		self.rEncoderPub = rospy.Publisher('Rencoder', Int32)
-		self.lPidoutPub = rospy.Publisher('Lpidout', Int32)
-		self.rPidoutPub = rospy.Publisher('Rpidout', Int32)
-		self.lVelPub = rospy.Publisher('Lvel', Int32)
-		self.rVelPub = rospy.Publisher('Rvel', Int32)
+            self.lEncoderPub = rospy.Publisher('Lencoder', Int32)
+            self.rEncoderPub = rospy.Publisher('Rencoder', Int32)
+            self.lPidoutPub = rospy.Publisher('Lpidout', Int32)
+            self.rPidoutPub = rospy.Publisher('Rpidout', Int32)
+            self.lVelPub = rospy.Publisher('Lvel', Int32)
+            self.rVelPub = rospy.Publisher('Rvel', Int32)
         
         # Set up the odometry broadcaster
         self.odomPub = rospy.Publisher('odom', Odometry)
@@ -156,54 +150,54 @@ class BaseController:
         if now > self.t_next:
             #modify by william
             if self.debugPID:
-            	rospy.logdebug("poll start-------------------------------: ")
-		try:
-			if self.four_wd:
-				left_pidin, right_pidin, left_h_pidin, right_h_pidin =self.arduino.get_pidin()
-				rospy.logdebug("left_pidin: "+str(left_pidin))
-				rospy.logdebug("right_pidin: "+str(right_pidin))
-				rospy.logdebug("left_h_pidin: "+str(left_h_pidin))
-				rospy.logdebug("right_h_pidin: "+str(right_h_pidin))
-			else:
-				left_pidin, right_pidin = self.arduino.get_pidin()
-				rospy.logdebug("left_pidin: "+str(left_pidin))
-				rospy.logdebug("right_pidin: "+str(right_pidin))
-		except:
-			rospy.logerr("getpidin exception count: ")
-			return
+                rospy.logdebug("poll start-------------------------------: ")
+        try:
+            if self.four_wd:
+                left_pidin, right_pidin, left_h_pidin, right_h_pidin =self.arduino.get_pidin()
+                rospy.logdebug("left_pidin: "+str(left_pidin))
+                rospy.logdebug("right_pidin: "+str(right_pidin))
+                rospy.logdebug("left_h_pidin: "+str(left_h_pidin))
+                rospy.logdebug("right_h_pidin: "+str(right_h_pidin))
+            else:
+                left_pidin, right_pidin = self.arduino.get_pidin()
+                rospy.logdebug("left_pidin: "+str(left_pidin))
+                rospy.logdebug("right_pidin: "+str(right_pidin))
+        except:
+            rospy.logerr("getpidin exception count: ")
+            return
 
-		self.lEncoderPub.publish(left_pidin)
-		self.rEncoderPub.publish(right_pidin)
-		try:
-			if self.four_wd:
-				left_pidout, right_pidout,left_h_pidout, right_h_pidout = self.arduino.get_pidout()
-				rospy.logdebug("left_pidout: "+str(left_pidout))
-				rospy.logdebug("right_pidout: "+str(right_pidout))
-				rospy.logdebug("left_h_pidout: "+str(left_h_pidout))
-				rospy.logdebug("right_h_pidout: "+str(right_h_pidout))
-			else:
-				left_pidout, right_pidout = self.arduino.get_pidout()
-				rospy.logdebug("left_pidout: "+str(left_pidout))
-				rospy.logdebug("right_pidout: "+str(right_pidout))
-		except:
-			rospy.logerr("getpidout exception count: ")
-			return
-		self.lPidoutPub.publish(left_pidout)
-		self.rPidoutPub.publish(right_pidout)
+        self.lEncoderPub.publish(left_pidin)
+        self.rEncoderPub.publish(right_pidin)
+        try:
+            if self.four_wd:
+                left_pidout, right_pidout,left_h_pidout, right_h_pidout = self.arduino.get_pidout()
+                rospy.logdebug("left_pidout: "+str(left_pidout))
+                rospy.logdebug("right_pidout: "+str(right_pidout))
+                rospy.logdebug("left_h_pidout: "+str(left_h_pidout))
+                rospy.logdebug("right_h_pidout: "+str(right_h_pidout))
+            else:
+                left_pidout, right_pidout = self.arduino.get_pidout()
+                rospy.logdebug("left_pidout: "+str(left_pidout))
+                rospy.logdebug("right_pidout: "+str(right_pidout))
+        except:
+            rospy.logerr("getpidout exception count: ")
+            return
+        self.lPidoutPub.publish(left_pidout)
+        self.rPidoutPub.publish(right_pidout)
             # Read the encoders
             try:
-            	if self.four_wd:
-            		left_enc, right_enc,left_h_enc, right_h_enc = self.arduino.get_encoder_counts()
-            		if self.debugPID:
-                		rospy.logdebug("left_enc: " + str(left_enc))
-				rospy.logdebug("right_enc: " +str(right_enc))
-				rospy.logdebug("left_h_enc: " + str(left_h_enc))
-				rospy.logdebug("right_h_enc: " +str(right_h_enc))
-            	else:
-                	left_enc, right_enc = self.arduino.get_encoder_counts()
-			if self.debugPID:
-                		rospy.logdebug("left_enc: " + str(left_enc))
-				rospy.logdebug("right_enc: " +str(right_enc))
+                if self.four_wd:
+                    left_enc, right_enc,left_h_enc, right_h_enc = self.arduino.get_encoder_counts()
+                    if self.debugPID:
+                        rospy.logdebug("left_enc: " + str(left_enc))
+                rospy.logdebug("right_enc: " +str(right_enc))
+                rospy.logdebug("left_h_enc: " + str(left_h_enc))
+                rospy.logdebug("right_h_enc: " +str(right_h_enc))
+                else:
+                    left_enc, right_enc = self.arduino.get_encoder_counts()
+            if self.debugPID:
+                        rospy.logdebug("left_enc: " + str(left_enc))
+                rospy.logdebug("right_enc: " +str(right_enc))
             except:
                 self.bad_encoder_count += 1
                 rospy.logerr("Encoder exception count: " + str(self.bad_encoder_count))
@@ -291,14 +285,14 @@ class BaseController:
             
             # Set motor speeds in encoder ticks per PID loop
             if self.debugPID:
-            	self.lVelPub.publish(self.v_left)
-		self.rVelPub.publish(self.v_right)
+                self.lVelPub.publish(self.v_left)
+        self.rVelPub.publish(self.v_right)
             if not self.stopped:
                 #modify by william
                 self.arduino.drive(self.v_left, self.v_right)
                 if self.debugPID:
-                	rospy.logdebug("v_left: "+str(self.v_left))
-			rospy.logdebug("v_right: "+str(self.v_right))
+                    rospy.logdebug("v_left: "+str(self.v_left))
+            rospy.logdebug("v_right: "+str(self.v_right))
                                 
             self.t_next = now + self.t_delta
             
@@ -312,7 +306,7 @@ class BaseController:
         
         x = req.linear.x         # m/s
         th = req.angular.z       # rad/s
-		
+        
         
         if x == 0:
             # Turn in place
@@ -329,12 +323,5 @@ class BaseController:
             left = x - th * self.wheel_track / 2.0
             right = x + th * self.wheel_track / 2.0
 
-            
         self.v_des_left = int(left * self.ticks_per_meter / self.arduino.PID_RATE)
         self.v_des_right = int(right * self.ticks_per_meter / self.arduino.PID_RATE)
-
-        
-
-    
-
-    
